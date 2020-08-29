@@ -11,7 +11,10 @@ func menu() {
     print("[2] Vectors")
     print("Calculate...")
     print("[3] Vector length")
-    //print("[4] Vector scalar multiplication")
+    print("[4] Vectors' scalar multiplication")
+    /*print("[5] ")
+    print("[6] ")
+    print("[7] ")*/
     print("List of all...")
     print("[8] Points")
     print("[9] Vectors")
@@ -31,6 +34,13 @@ func menu() {
             return
         }
         calcLength()
+    case "4":
+        guard Vectors.count > 1 else {
+            print("There is nothing to multiply. Add some more vectors to do this operation.")
+            menu()
+            return
+        }
+        ScalarMultiplication()
     case "8":
         guard Points.count > 0 else {
             print("It's empty. Add some points to see them here.")
@@ -49,6 +59,41 @@ func menu() {
         return
     default:
         print("You input something strange... Try again.")
+        menu()
+    }
+}
+
+func ScalarMultiplication(){
+    print("\nCalculating scalar multiplication of 2 vectors")
+    print("Enter the names of 2 saved vectors:")
+    if let answer = readLine() {
+        if answer == "" { menu(); return }
+        let args = answer.split(separator: " ")
+        guard args.count == 2 else {
+            print("You input something strange... We need only the names of 2 vectors. Try again.")
+            ScalarMultiplication()
+            return
+        }
+        let v1 = String(args[0])
+        let v2 = String(args[1])
+        guard Vectors[v1] != nil else {
+            print("A vector with name \"\(v1)\" doesn't exist. Try again.")
+            ScalarMultiplication()
+            return
+        }
+        guard Vectors[v2] != nil else {
+            print("A vector with name \"\(v2)\" doesn't exist. Try again.")
+            ScalarMultiplication()
+            return
+        }
+        let v1x = Vectors[v1]!.x
+        let v1y = Vectors[v1]!.y
+        
+        let v2x = Vectors[v2]!.x
+        let v2y = Vectors[v2]!.y
+        
+        let result = v1x*v2x + v1y*v2y
+        print("\nScalar multiplication of 2 vectors (\"\(v1)\" and \"\(v2)\") equals to \(result).")
         menu()
     }
 }
@@ -218,7 +263,7 @@ func calcLength(){
         let x = Double(Vectors[name]!.x)
         let y = Double(Vectors[name]!.y)
         let length = sqrt(x*x + y*y)
-        print("\nLength of vector \"\(name)\" equals to \(length)")
+        print("\nLength of vector \"\(name)\" equals to \(length).")
         menu()
     }
 }
