@@ -9,13 +9,12 @@ func menu() {
     print("\nAdd...")
     print("[1] Points")
     print("[2] Vectors")
-    print("")
     print("Calculate...")
     print("[3] Vector length")
     //print("[4] Vector scalar multiplication")
-    //print("List of all...")
-    //print("[8] Points")
-    //print("[9] Vectors")
+    print("List of all...")
+    print("[8] Points")
+    print("[9] Vectors")
     print("[0] Quit\n")
     let answer = readLine()
     switch answer {
@@ -32,12 +31,39 @@ func menu() {
             return
         }
         calcLength()
+    case "8":
+        guard Points.count > 0 else {
+            print("It's empty. Add some points to see them here.")
+            menu()
+            return
+        }
+        listOf(dict: Points, type: "points")
+    case "9":
+        guard Vectors.count > 0 else {
+            print("It's empty. Add or create some vectors to see them here.")
+            menu()
+            return
+        }
+        listOf(dict: Vectors, type: "vectors")
     case "0":
         return
     default:
         print("You input something strange... Try again.")
         menu()
     }
+}
+
+func listOf(dict: [String: Coordinates], type: String){
+    print("List of saved \(type):")
+    print("(format: name - coordinates)")
+    for i in dict {
+        let name = i.key
+        let x = i.value.x
+        let y = i.value.y
+        print(" \(name) - (\(x),\(y))")
+    }
+    print("End.")
+    menu()
 }
 
 func addPoints(){
