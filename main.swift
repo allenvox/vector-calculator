@@ -1,6 +1,6 @@
 import Foundation
 
-typealias Coordinates = (x: Int, y: Int)
+typealias Coordinates = (x: Double, y: Double)
 var Points: [String: Coordinates] = [:]
 var Vectors: [String: Coordinates] = [:]
 
@@ -11,8 +11,8 @@ func menu() {
     print("[2] Vectors")
     print("Calculate...")
     print("[3] Vector length")
-    print("[4] 2 vectors' scalar multiplication")
-    //print("[5] ")
+    print("[4] Scalar multiplication of 2 vectors")
+    print("[5] Vector multiplication of 2 vectors")
     //print("[6] ")
     print("[7] Angle between 2 vectors")
     print("List of all...")
@@ -33,6 +33,9 @@ func menu() {
     case "4":
         checkEnough(dict: Vectors, type: "vectors", need: 2)
         ScalarMultiplication()
+    case "5":
+        checkEnough(dict: Vectors, type: "vectors", need: 2)
+        VectorMultiplication()
     case "7":
         checkEnough(dict: Vectors, type: "vectors", need: 2)
         angleBetweenVectors()
@@ -48,6 +51,42 @@ func menu() {
         print("You input something strange... Try again.")
         menu()
     }
+}
+
+func VectorMultiplication(){
+    print("\nCalculating vector multiplication of 2 vectors")
+    print("Enter the names of 2 saved vectors:")
+    if let answer = readLine() {
+        if answer == "" { menu(); return }
+        let args = answer.split(separator: " ")
+        guard args.count == 2 else {
+            print("You input something strange... We need only the names of 2 vectors. Try again.")
+            VectorMultiplication()
+            return
+        }
+        let v1 = String(args[0])
+        let v2 = String(args[1])
+        guard Vectors[v1] != nil else {
+            print("A vector with name \"\(v1)\" doesn't exist. Try again.")
+            VectorMultiplication()
+            return
+        }
+        guard Vectors[v2] != nil else {
+            print("A vector with name \"\(v2)\" doesn't exist. Try again.")
+            VectorMultiplication()
+            return
+        }
+        let result = multiply_vector(v1x: Vectors[v1]!.x, v1y: Vectors[v1]!.y, v2x: Vectors[v2]!.x, v2y: Vectors[v2]!.y)
+        print("\nVector multiplication of 2 vectors (\"\(v1)\" and \"\(v2)\") equals to \(result).")
+        menu()
+    }
+}
+
+func multiply_vector(v1x: Double, v1y: Double, v2x: Double, v2y: Double) -> Double {
+    let cos = cosin(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y)
+    let sinus = sqrt(1 - cos*cos)
+    let result = Len(x: v1x, y: v1y) * Len(x: v2x, y: v2y) * sinus
+    return result
 }
 
 func angleBetweenVectors(){
@@ -79,18 +118,23 @@ func angleBetweenVectors(){
         let v2x = Vectors[v2]!.x
         let v2y = Vectors[v2]!.y
         
-        let scalarMultiplication = Double(SM(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y))
-        let multiplicationOfLengths = Len(x: Double(v1x), y: Double(v1y)) * Len(x: Double(v2x), y: Double(v2y))
-        let cos = scalarMultiplication / multiplicationOfLengths
+        let cos = cosin(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y)
         let result = acos(cos) * 180 / Double.pi
         print("\nAngle between 2 vectors (\"\(v1)\" and \"\(v2)\") equals to \(result) degrees.")
         menu()
     }
 }
 
+func cosin(v1x: Double, v1y: Double, v2x: Double, v2y: Double) -> Double {
+    let scalarMultiplication = multiply_scalar(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y)
+    let multiplicationOfLengths = Len(x: v1x, y: v1y) * Len(x: v2x, y: v2y)
+    let result = scalarMultiplication / multiplicationOfLengths
+    return result
+}
+
 func checkEnough(dict: [String: Coordinates], type: String, need: Int){
     guard dict.count > need-1 else {
-        print("You have only \(dict.count) saved \(type). Program needs at least \(need). Add or create some more to do this operation.")
+        print("You have \(dict.count) saved \(type). Program needs at least \(need). Add or create some more to do this operation.")
         menu()
         return
     }
@@ -119,13 +163,13 @@ func ScalarMultiplication(){
             ScalarMultiplication()
             return
         }
-        let result = SM(v1x: Vectors[v1]!.x, v1y: Vectors[v1]!.y, v2x: Vectors[v2]!.x, v2y: Vectors[v2]!.y)
+        let result = multiply_scalar(v1x: Vectors[v1]!.x, v1y: Vectors[v1]!.y, v2x: Vectors[v2]!.x, v2y: Vectors[v2]!.y)
         print("\nScalar multiplication of 2 vectors (\"\(v1)\" and \"\(v2)\") equals to \(result).")
         menu()
     }
 }
 
-func SM(v1x: Int, v1y: Int, v2x: Int, v2y: Int) -> Int {
+func multiply_scalar(v1x: Double, v1y: Double, v2x: Double, v2y: Double) -> Double {
     return v1x*v2x + v1y*v2y
 }
 
@@ -155,8 +199,8 @@ func addPoints(){
             return
         }
         let name = String(args[0])
-        if let x = Int(args[1]) {
-            if let y = Int(args[2]) {
+        if let x = Double(args[1]) {
+            if let y = Double(args[2]) {
                 let coordinates = (x,y)
                 if Points[name] != nil {
                     print("A point with name \"\(name)\" already exists.")
@@ -255,8 +299,8 @@ func addVecCoordinates(){
             return
         }
         let name = String(args[0])
-        if let x = Int(args[1]) {
-            if let y = Int(args[2]) {
+        if let x = Double(args[1]) {
+            if let y = Double(args[2]) {
                 let coordinates = (x,y)
                 if Vectors[name] != nil {
                     print("A vector with name \"\(name)\" already exists.")
@@ -292,7 +336,7 @@ func calcLength(){
             calcLength()
             return
         }
-        let result = Len(x: Double(Vectors[name]!.x), y: Double(Vectors[name]!.y))
+        let result = Len(x: Vectors[name]!.x, y: Vectors[name]!.y)
         print("\nLength of vector \"\(name)\" equals to \(result).")
         menu()
     }
