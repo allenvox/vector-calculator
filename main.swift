@@ -11,10 +11,10 @@ func menu() {
     print("[2] Vectors")
     print("Calculate...")
     print("[3] Vector length")
-    print("[4] Vectors' scalar multiplication")
-    /*print("[5] ")
-    print("[6] ")
-    print("[7] ")*/
+    print("[4] 2 vectors' scalar multiplication")
+    //print("[5] ")
+    //print("[6] ")
+    print("[7] Angle between 2 vectors")
     print("List of all...")
     print("[8] Points")
     print("[9] Vectors")
@@ -28,38 +28,71 @@ func menu() {
     case "2":
         addVectors()
     case "3":
-        guard Vectors.count > 0 else {
-            print("There are no saved vectors. Create one and try again.")
-            menu()
-            return
-        }
+        checkEnough(dict: Vectors, type: "vectors", need: 1)
         calcLength()
     case "4":
-        guard Vectors.count > 1 else {
-            print("There is nothing to multiply. Add some more vectors to do this operation.")
-            menu()
-            return
-        }
+        checkEnough(dict: Vectors, type: "vectors", need: 2)
         ScalarMultiplication()
+    case "7":
+        checkEnough(dict: Vectors, type: "vectors", need: 2)
+        angleBetweenVectors()
     case "8":
-        guard Points.count > 0 else {
-            print("It's empty. Add some points to see them here.")
-            menu()
-            return
-        }
+        checkEnough(dict: Points, type: "points", need: 1)
         listOf(dict: Points, type: "points")
     case "9":
-        guard Vectors.count > 0 else {
-            print("It's empty. Add or create some vectors to see them here.")
-            menu()
-            return
-        }
+        checkEnough(dict: Vectors, type: "vectors", need: 1)
         listOf(dict: Vectors, type: "vectors")
     case "0":
         return
     default:
         print("You input something strange... Try again.")
         menu()
+    }
+}
+
+func angleBetweenVectors(){
+    print("\nCalculating angle between 2 vectors")
+    print("Enter the names of 2 saved vectors:")
+    if let answer = readLine() {
+        if answer == "" { menu(); return }
+        let args = answer.split(separator: " ")
+        guard args.count == 2 else {
+            print("You input something strange... We need only the names of 2 vectors. Try again.")
+            angleBetweenVectors()
+            return
+        }
+        let v1 = String(args[0])
+        let v2 = String(args[1])
+        guard Vectors[v1] != nil else {
+            print("A vector with name \"\(v1)\" doesn't exist. Try again.")
+            angleBetweenVectors()
+            return
+        }
+        guard Vectors[v2] != nil else {
+            print("A vector with name \"\(v2)\" doesn't exist. Try again.")
+            angleBetweenVectors()
+            return
+        }
+        let v1x = Vectors[v1]!.x
+        let v1y = Vectors[v1]!.y
+        
+        let v2x = Vectors[v2]!.x
+        let v2y = Vectors[v2]!.y
+        
+        let scalarMultiplication = Double(SM(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y))
+        let multiplicationOfLengths = Len(x: Double(v1x), y: Double(v1y)) * Len(x: Double(v2x), y: Double(v2y))
+        let cos = scalarMultiplication / multiplicationOfLengths
+        let result = acos(cos) * 180 / Double.pi
+        print("\nAngle between 2 vectors (\"\(v1)\" and \"\(v2)\") equals to \(result) degrees.")
+        menu()
+    }
+}
+
+func checkEnough(dict: [String: Coordinates], type: String, need: Int){
+    guard dict.count > need-1 else {
+        print("You have only \(dict.count) saved \(type). Program needs at least \(need). Add or create some more to do this operation.")
+        menu()
+        return
     }
 }
 
@@ -86,16 +119,14 @@ func ScalarMultiplication(){
             ScalarMultiplication()
             return
         }
-        let v1x = Vectors[v1]!.x
-        let v1y = Vectors[v1]!.y
-        
-        let v2x = Vectors[v2]!.x
-        let v2y = Vectors[v2]!.y
-        
-        let result = v1x*v2x + v1y*v2y
+        let result = SM(v1x: Vectors[v1]!.x, v1y: Vectors[v1]!.y, v2x: Vectors[v2]!.x, v2y: Vectors[v2]!.y)
         print("\nScalar multiplication of 2 vectors (\"\(v1)\" and \"\(v2)\") equals to \(result).")
         menu()
     }
+}
+
+func SM(v1x: Int, v1y: Int, v2x: Int, v2y: Int) -> Int {
+    return v1x*v2x + v1y*v2y
 }
 
 func listOf(dict: [String: Coordinates], type: String){
@@ -159,6 +190,7 @@ func addVectors(){
         case "1":
             if Points.count < 2 {
                 print("You saved less than 2 points so far! Add another points or create a vector using another option.")
+                addVectors()
             } else { createVecfromPts() }
         case "2":
             addVecCoordinates()
@@ -177,7 +209,7 @@ func createVecfromPts(){
         let args = answer.split(separator: " ")
         guard args.count == 3 else {
             print("You input something strange... Check the format and try again.")
-            addVecCoordinates()
+            createVecfromPts()
             return
         }
         let name = String(args[0])
@@ -260,12 +292,14 @@ func calcLength(){
             calcLength()
             return
         }
-        let x = Double(Vectors[name]!.x)
-        let y = Double(Vectors[name]!.y)
-        let length = sqrt(x*x + y*y)
-        print("\nLength of vector \"\(name)\" equals to \(length).")
+        let result = Len(x: Double(Vectors[name]!.x), y: Double(Vectors[name]!.y))
+        print("\nLength of vector \"\(name)\" equals to \(result).")
         menu()
     }
+}
+
+func Len(x: Double, y: Double) -> Double{
+    return sqrt(x*x + y*y)
 }
 
 menu()
