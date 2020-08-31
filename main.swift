@@ -11,9 +11,9 @@ func menu() {
     print("[2] Vectors")
     print("Calculate...")
     print("[3] Vector length")
-    print("[4] Scalar multiplication of 2 vectors")
-    print("[5] Vector multiplication of 2 vectors")
-    //print("[6] ")
+    print("[4] Scalar product of 2 vectors")
+    print("[5] Vector (cross) product of 2 vectors")
+    print("[6] Mixed (scalar triple) product of 3 vectors")
     print("[7] Angle between 2 vectors")
     print("List of all...")
     print("[8] Points")
@@ -36,6 +36,9 @@ func menu() {
     case "5":
         checkEnough(dict: Vectors, type: "vectors", need: 2)
         VectorMultiplication()
+    case "6":
+        checkEnough(dict: Vectors, type: "vectors", need: 3)
+        MixedMultiplication()
     case "7":
         checkEnough(dict: Vectors, type: "vectors", need: 2)
         angleBetweenVectors()
@@ -49,6 +52,54 @@ func menu() {
         return
     default:
         print("You input something strange... Try again.")
+        menu()
+    }
+}
+
+func MixedMultiplication(){
+    print("\nCalculating mixed multiplication of 3 vectors")
+    print("Enter the names of 3 saved vectors:")
+    if let answer = readLine() {
+        if answer == "" { menu(); return }
+        let args = answer.split(separator: " ")
+        guard args.count == 3 else {
+            print("You input something strange... We need the names of 3 vectors. Try again.")
+            MixedMultiplication()
+            return
+        }
+        let v1 = String(args[0])
+        let v2 = String(args[1])
+        let v3 = String(args[2])
+        guard Vectors[v1] != nil else {
+            print("A vector with name \"\(v1)\" doesn't exist. Try again.")
+            MixedMultiplication()
+            return
+        }
+        guard Vectors[v2] != nil else {
+            print("A vector with name \"\(v2)\" doesn't exist. Try again.")
+            MixedMultiplication()
+            return
+        }
+        guard Vectors[v3] != nil else {
+            print("A vector with name \"\(v3)\" doesn't exist. Try again.")
+            MixedMultiplication()
+            return
+        }
+        //matrix
+        let v1x = Vectors[v1]!.x;   let v1y = Vectors[v1]!.y;   let v1z = Vectors[v1]!.z
+        let v2x = Vectors[v2]!.x;   let v2y = Vectors[v2]!.y;   let v2z = Vectors[v2]!.z
+        let v3x = Vectors[v3]!.x;   let v3y = Vectors[v3]!.y;   let v3z = Vectors[v3]!.z
+        
+        let a1b2c3 = v1x*v2y*v3z
+        let a3b1c2 = v3x*v1y*v2z
+        let a2b3c1 = v2x*v3y*v1z
+        
+        let a3b2c1 = v3x*v2y*v1z
+        let a1b3c2 = v1x*v3y*v2z
+        let a2b1c3 = v2x*v1y*v3z
+        
+        let result = a1b2c3 + a3b1c2 + a2b3c1 - a3b2c1 - a1b3c2 - a2b1c3
+        print("\nMixed multiplication of 3 vectors (\"\(v1)\",\"\(v2)\" and \"\(v3)\") equals to \(result).")
         menu()
     }
 }
@@ -197,7 +248,7 @@ func addPoints(){
     if let answer = readLine() {
         if answer == "" { menu(); return }
         let args = answer.split(separator: " ")
-        guard args.count > 2 else {
+        guard args.count > 2 && args.count < 5 else {
             print("You input something strange... Check the format and try again.")
             addPoints()
             return
@@ -301,7 +352,7 @@ func addVecCoordinates(){
     if let answer = readLine() {
         if answer == "" { menu(); return }
         let args = answer.split(separator: " ")
-        guard args.count > 2 else {
+        guard args.count > 2 && args.count < 5 else {
             print("You input something strange... Check the format and try again.")
             addVecCoordinates()
             return
