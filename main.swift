@@ -1,6 +1,6 @@
 import Foundation
 
-typealias Coordinates = (x: Double, y: Double)
+typealias Coordinates = (x: Double, y: Double, z: Double)
 var Points: [String: Coordinates] = [:]
 var Vectors: [String: Coordinates] = [:]
 
@@ -76,16 +76,16 @@ func VectorMultiplication(){
             VectorMultiplication()
             return
         }
-        let result = multiply_vector(v1x: Vectors[v1]!.x, v1y: Vectors[v1]!.y, v2x: Vectors[v2]!.x, v2y: Vectors[v2]!.y)
+        let result = multiply_vector(v1x: Vectors[v1]!.x, v1y: Vectors[v1]!.y, v2x: Vectors[v2]!.x, v2y: Vectors[v2]!.y, v1z: Vectors[v1]!.z, v2z: Vectors[v2]!.z)
         print("\nVector multiplication of 2 vectors (\"\(v1)\" and \"\(v2)\") equals to \(result).")
         menu()
     }
 }
 
-func multiply_vector(v1x: Double, v1y: Double, v2x: Double, v2y: Double) -> Double {
-    let cos = cosin(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y)
+func multiply_vector(v1x: Double, v1y: Double, v2x: Double, v2y: Double, v1z: Double, v2z: Double) -> Double {
+    let cos = cosin(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y, v1z: v1z, v2z: v2z)
     let sinus = sqrt(1 - cos*cos)
-    let result = Len(x: v1x, y: v1y) * Len(x: v2x, y: v2y) * sinus
+    let result = Len(x: v1x, y: v1y, z: v1z) * Len(x: v2x, y: v2y, z: v2z) * sinus
     return result
 }
 
@@ -114,20 +114,22 @@ func angleBetweenVectors(){
         }
         let v1x = Vectors[v1]!.x
         let v1y = Vectors[v1]!.y
+        let v1z = Vectors[v1]!.z
         
         let v2x = Vectors[v2]!.x
         let v2y = Vectors[v2]!.y
+        let v2z = Vectors[v2]!.z
         
-        let cos = cosin(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y)
+        let cos = cosin(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y, v1z: v1z, v2z: v2z)
         let result = acos(cos) * 180 / Double.pi
         print("\nAngle between 2 vectors (\"\(v1)\" and \"\(v2)\") equals to \(result) degrees.")
         menu()
     }
 }
 
-func cosin(v1x: Double, v1y: Double, v2x: Double, v2y: Double) -> Double {
-    let scalarMultiplication = multiply_scalar(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y)
-    let multiplicationOfLengths = Len(x: v1x, y: v1y) * Len(x: v2x, y: v2y)
+func cosin(v1x: Double, v1y: Double, v2x: Double, v2y: Double, v1z: Double, v2z: Double) -> Double {
+    let scalarMultiplication = multiply_scalar(v1x: v1x, v1y: v1y, v2x: v2x, v2y: v2y, v1z: v1z, v2z: v2z)
+    let multiplicationOfLengths = Len(x: v1x, y: v1y, z: v1z) * Len(x: v2x, y: v2y, z: v2z)
     let result = scalarMultiplication / multiplicationOfLengths
     return result
 }
@@ -163,24 +165,25 @@ func ScalarMultiplication(){
             ScalarMultiplication()
             return
         }
-        let result = multiply_scalar(v1x: Vectors[v1]!.x, v1y: Vectors[v1]!.y, v2x: Vectors[v2]!.x, v2y: Vectors[v2]!.y)
+        let result = multiply_scalar(v1x: Vectors[v1]!.x, v1y: Vectors[v1]!.y, v2x: Vectors[v2]!.x, v2y: Vectors[v2]!.y, v1z: Vectors[v1]!.z, v2z: Vectors[v2]!.z)
         print("\nScalar multiplication of 2 vectors (\"\(v1)\" and \"\(v2)\") equals to \(result).")
         menu()
     }
 }
 
-func multiply_scalar(v1x: Double, v1y: Double, v2x: Double, v2y: Double) -> Double {
-    return v1x*v2x + v1y*v2y
+func multiply_scalar(v1x: Double, v1y: Double, v2x: Double, v2y: Double, v1z: Double, v2z: Double) -> Double {
+    return v1x*v2x + v1y*v2y + v1z*v2z
 }
 
 func listOf(dict: [String: Coordinates], type: String){
-    print("List of saved \(type):")
+    print("\nList of saved \(type):")
     print("(format: name - coordinates)")
     for i in dict {
         let name = i.key
         let x = i.value.x
         let y = i.value.y
-        print(" \(name) - (\(x),\(y))")
+        let z = i.value.z
+        print(" \(name) - (\(x),\(y),\(z))")
     }
     print("End.")
     menu()
@@ -188,12 +191,13 @@ func listOf(dict: [String: Coordinates], type: String){
 
 func addPoints(){
     print("\nAdding a point")
-    print("Enter point's Name, X and Y coordinates of point in this format:")
-    print("<name> <x> <y>\n")
+    print("Enter point's Name, X-Y-Z coordinates of point in this format:")
+    print("<name> <x> <y> [z]")
+    print("(if Z isn't specified, it'll be set to 0)\n")
     if let answer = readLine() {
         if answer == "" { menu(); return }
         let args = answer.split(separator: " ")
-        guard args.count == 3 else {
+        guard args.count > 2 else {
             print("You input something strange... Check the format and try again.")
             addPoints()
             return
@@ -201,7 +205,9 @@ func addPoints(){
         let name = String(args[0])
         if let x = Double(args[1]) {
             if let y = Double(args[2]) {
-                let coordinates = (x,y)
+                let z: Double
+                if args.count == 3 { z = 0 } else { z = Double(args[3])! }
+                let coordinates = (x,y,z)
                 if Points[name] != nil {
                     print("A point with name \"\(name)\" already exists.")
                     print("Want to delete it? (y/n)")
@@ -213,7 +219,7 @@ func addPoints(){
                     }
                 }
                 Points[name] = coordinates
-                print("Added point \"\(name)\" with coordinates (\(x);\(y)).")
+                print("Added point \"\(name)\" with coordinates (\(x);\(y);\(z)).")
             }
         }
     }
@@ -257,43 +263,45 @@ func createVecfromPts(){
             return
         }
         let name = String(args[0])
-        let point1 = String(args[1])
-        let point2 = String(args[2])
-        guard Points[point1] != nil else {
-            print("A point with name \"\(point1)\" doesn't exist. Please, try again and enter the name of an existing point.")
+        let p1 = String(args[1])
+        let p2 = String(args[2])
+        guard Points[p1] != nil else {
+            print("A point with name \"\(p1)\" doesn't exist. Please, try again and enter the name of an existing point.")
             createVecfromPts()
             return
         }
-        guard Points[point2] != nil else {
-            print("A point with name \"\(point2)\" doesn't exist. Please, try again and enter the name of an existing point.")
+        guard Points[p2] != nil else {
+            print("A point with name \"\(p2)\" doesn't exist. Please, try again and enter the name of an existing point.")
             createVecfromPts()
             return
         }
-        let p1x = Points[point1]!.x
-        let p1y = Points[point1]!.y
+        let p1x = Points[p1]!.x
+        let p1y = Points[p1]!.y
+        let p1z = Points[p1]!.z
         
-        let p2x = Points[point2]!.x
-        let p2y = Points[point2]!.y
+        let p2x = Points[p2]!.x
+        let p2y = Points[p2]!.y
+        let p2z = Points[p2]!.z
         
         let vx = p2x-p1x
         let vy = p2y-p1y
-        let coordinates = (vx,vy)
+        let vz = p2z-p1z
+        let coordinates = (vx,vy,vz)
         Vectors[name] = coordinates
-        print("Added vector \"\(name)\" with coordinates (\(vx);\(vy))")
-        print("from point \"\(point1)\" with coordinates (\(p1x);\(p1y))")
-        print("and point \"\(point2)\" with coordinates (\(p2x);\(p2y))")
+        print("Added vector \"\(name)\" with coordinates (\(vx);\(vy);\(vz)")
         menu()
     }
 }
 
 func addVecCoordinates(){
     print("\nCreating a vector by entering its coordinates")
-    print("Enter vector's Name, X and Y coordinates of vector in this format:")
-    print("<name> <x> <y>\n")
+    print("Enter vector's Name, X-Y-Z coordinates of vector in this format:")
+    print("<name> <x> <y> [z]")
+    print("(if Z isn't specified, it'll be set to 0)\n")
     if let answer = readLine() {
         if answer == "" { menu(); return }
         let args = answer.split(separator: " ")
-        guard args.count == 3 else {
+        guard args.count > 2 else {
             print("You input something strange... Check the format and try again.")
             addVecCoordinates()
             return
@@ -301,7 +309,9 @@ func addVecCoordinates(){
         let name = String(args[0])
         if let x = Double(args[1]) {
             if let y = Double(args[2]) {
-                let coordinates = (x,y)
+                let z: Double
+                if args.count == 3 { z = 0 } else { z = Double(args[3])! }
+                let coordinates = (x,y,z)
                 if Vectors[name] != nil {
                     print("A vector with name \"\(name)\" already exists.")
                     print("Want to delete it? (y/n)")
@@ -313,7 +323,7 @@ func addVecCoordinates(){
                     }
                 }
                 Vectors[name] = coordinates
-                print("Added vector \"\(name)\" with coordinates (\(x);\(y)).")
+                print("Added vector \"\(name)\" with coordinates (\(x);\(y);\(z)).")
             }
         }
     }
@@ -336,14 +346,14 @@ func calcLength(){
             calcLength()
             return
         }
-        let result = Len(x: Vectors[name]!.x, y: Vectors[name]!.y)
+        let result = Len(x: Vectors[name]!.x, y: Vectors[name]!.y, z: Vectors[name]!.z)
         print("\nLength of vector \"\(name)\" equals to \(result).")
         menu()
     }
 }
 
-func Len(x: Double, y: Double) -> Double{
-    return sqrt(x*x + y*y)
+func Len(x: Double, y: Double, z: Double) -> Double{
+    return sqrt(x*x + y*y + z*z)
 }
 
 menu()
